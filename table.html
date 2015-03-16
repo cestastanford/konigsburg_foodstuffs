@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+    font-family: sans-serif;
+    font-size: 10px;
+}
+
+.line {
+    fill: none;
+    stroke: #000;
+    stroke-width: 1.0px;
+}
+
+</style>
+
+<body>
+
+<div id="table"></div>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script>
+
+/**
+  * Tabulate data
+  */
+  var columns = ["translation","category","macrocategory","subcategory","unit of measure","min","max","mean","sparkline","1641","1644","1645","1646","1648","1656","1657","1659","1662","1663","1664","1665","1668","1670","1671","1672","1673","1674","1675","1676","1677","1678","1679","1680","1681","1682","1683","1684","1685","1686","1687","1688"];
+
+  var table = d3.select("body").append("table"),
+      thead = table.append("thead");
+      tbody = table.append("tbody");
+
+d3.csv("data/food.zscore.csv", function(raw_data) {
+
+  thead.append("tr")
+    .selectAll("th")
+    .data(columns)
+  .enter().append("th")
+    .text(function(column) { return column; });
+
+  rows = tbody.selectAll("tr")
+    .data(raw_data)
+  .enter().append("tr");
+    // .style("display", null);
+    // .on("mouseover", table_highlight)
+    // .on("mouseout", table_unhighlight);
+
+  cells = rows.selectAll("td")
+    .data(function(row) {
+        return columns.map(function(column) {
+          return {column: column, value: row[column]};
+        });
+      })
+  .enter().append("td")
+    .html(function(d,i) { return d.value; });
+
+  var sparkData = [];
+  
+
+  thead.selectAll("tr").append("th").text('Sparklines');
+
+  // rows.selectAll("td.graph")
+  //   .data(function(d,i) { return d.value; })
+  // .enter().append("td")
+  //   .attr("class","graph")
+  //   .each(lines);
+});
+
+// a sparklines plot
+function lines(info) {  
+    var width = 100, 
+        height = 20;
+
+    var data = [];
+    for (i = 0; i < info.length; i++) {
+        data[i] = {
+            'x': i,
+            'y': +info[i]
+        }
+    }
+    
+    var x = d3.scale.linear()
+        .range([0, width - 10])
+        .domain([0,5]);
+    
+    var y = d3.scale.linear()
+        .range([height, 0])
+        .domain([0,10]);
+    
+    var line = d3.svg.line()
+        .x(function(d) {return x(d.x)})
+        .y(function(d) {return y(d.y)});
+    
+    d3.select(this).append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .append('path')
+        .attr('class','line')
+    .datum(data)
+        .attr('d', line);
+
+}
+
+</script>
+
+<div id="foods_table"></div>
+
+</body>
+</html>

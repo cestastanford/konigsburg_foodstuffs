@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8">
+  <title>Königsberg Foodstuffs Database</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="keywords" lang="en-us" content="Königsberg, Stanford, visualization, digital history" />
+
+  <link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+  <link type="text/css" href="parallel.css" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <!-- <link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet"> -->
+
+  <!-- Google Fonts -->
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900|Merriweather:400,300,300italic,400italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Oxygen:400,300,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Lato:300,400,300' rel='stylesheet' type='text/css'>
+
+  <script src="bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="bower_components/queue-async/queue.min.js"></script>
+  <script src="bower_components/d3/d3.min.js"></script>
+  <script src="bower_components/underscore/underscore-min.js"></script>
+</head>
+<body>
+
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Königsberg Foodstuffs Database</a>
+      </div>
+      <div id="navbar" class="collapse navbar-collapse">
+        <!-- <div class="controls">
+          <strong id="rendered-count"></strong>/<strong id="selected-count"></strong>
+          <div class="fillbar"><div id="selected-bar"><div id="rendered-bar">&nbsp;</div></div></div>
+        </div> -->
+        <!-- <select name="field-selector" id="field-selector"></select> -->
+        <input type="text" id="search" placeholder="Search food items..."></input>
+      </div><!--/.nav-collapse -->
+    </div>
+  </nav>
+
+  <div id="chart">
+    <canvas id="background"></canvas>
+    <canvas id="foreground"></canvas>
+    <canvas id="highlight"></canvas>
+    <div id="parallel_svg"></div>
+    <!-- <svg></svg> -->
+  </div>
+
+
+  <!-- <div id="foods_table"></div> -->
+
+  <div id="timeline_chart">
+    <div id="timeline"></div>
+  </div>
+
+<!--   <footer>
+    <div class="panel-group" id="accordion">
+      <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse-timeline">
+                        <span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span> Timeline
+                    </a>
+                </h4>
+            </div>
+            <div id="collapse-timeline" class="panel-collapse collapse">
+                <div class="panel-body">
+                  <p id="timeline"></p>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse-filter">
+                        <span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span> Filter
+                    </a>
+                </h4>
+            </div>
+            <div id="collapse-filter" class="panel-collapse collapse">
+                <div class="panel-body">
+                  <h5>Filter by Category</h5>
+                  <p id="legend"></p>
+                  <h5>Filter by Subcategory</h5>
+                  <p id="subcategories"></p>
+                  <br/>
+                  <br/>
+                  <a href="onclick:resetFoods()">Reset</a>
+                </div>
+            </div>
+        </div>
+    </div>
+  </footer> -->
+
+<script src="parallel.js"></script>
+<!-- <script src="timeline.js"></script> -->
+
+</body>
+</html>

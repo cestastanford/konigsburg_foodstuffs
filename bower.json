@@ -1,0 +1,27 @@
+{
+  "name": "Königsberg Database",
+  "version": "0.0.2",
+  "homepage": "http://jasonheppler.org",
+  "authors": [
+    "Jason Heppler <jason@jasonheppler.org>"
+  ],
+  "description": "Königsberg Database",
+  "main": "index.html",
+  "license": "CC-BY",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "lib",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "d3": "~3.5.2",
+    "queue-async": "~1.0.7",
+    "topojson": "~1.6.18",
+    "d3-plugins": "*",
+    "bootstrap": "3.3.2"
+  }
+}

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+  <link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+  <link type="text/css" href="parallel.css" rel="stylesheet" />
+
+<!-- Google Fonts -->
+<link href='https://fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900|Merriweather:400,300,300italic,400italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Oxygen:400,300,700' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Lato:300,400,300' rel='stylesheet' type='text/css'>
+
+<body>
+
+<script src="bower_components/jquery/dist/jquery.min.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="bower_components/queue-async/queue.min.js"></script>
+<script src="bower_components/d3/d3.min.js"></script>
+<script src="bower_components/underscore/underscore-min.js"></script>
+<!-- <script src="divgrid.js"></script> -->
+
+<!-- <link rel="stylesheet" href="bower_components/slickgrid/slick.grid.css" type="text/css"/> -->
+<!-- <link rel="stylesheet" href="bower_components/slickgrid/css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/> -->
+<!-- <link rel="stylesheet" href="bower_components/slickgrid/controls/slick.pager.css" type="text/css"/>
+<script src="bower_components/slickgrid/lib/jquery-1.7.min.js"></script>
+<script src="bower_components/slickgrid/lib/jquery.event.drag-2.2.js"></script>
+<script src="bower_components/slickgrid/slick.core.js"></script>
+<script src="bower_components/slickgrid/slick.grid.js"></script>
+<script src="bower_components/slickgrid/controls/slick.pager.js"></script>
+<script src="bower_components/slickgrid/slick.dataview.js"></script> -->
+<!-- <script src="divgrid.js"></script> -->
+
+<script>
+queue()
+  .defer(d3.csv, "data/food.zscore.csv")
+  .defer(d3.csv, "data/foods.cleaned.csv")
+  .defer(d3.csv, "data/visit_percentage.csv")
+  .await(ready);
+
+var margin = {top: 30, right: 10, bottom: 10, left: 10},
+    width = document.body.clientWidth,
+    height = 300 - margin.top - margin.bottom;
+
+var x = d3.scale.ordinal().rangePoints([0, width], 1),
+    y = {};
+
+var line = d3.svg.line(),
+    axis = d3.svg.axis().orient("left"),
+    background,
+    foreground;
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var color = d3.scale.category10();
+
+function ready(error, zscore_data, raw_data) {
+  if (error) {
+    console.log(error);
+  }
+
+  // Extract the list of dimensions and create a scale for each.
+  x.domain(dimensions = d3.keys(zscore_data[0]).filter(function(d) {
+    return d != "translation" && d != "subcategory" && d != "category" && d != "macrocategory" && (y[d] = d3.scale.linear()
+        .domain([-2,4])
+        .range([height, 0]));
+  }));
+
+  // Add grey background lines for context.
+  background = svg.append("g")
+      .attr("class", "background")
+    .selectAll("path")
+      .data(zscore_data)
+    .enter().append("path")
+      .attr("d", path);
+
+  // Add blue foreground lines for focus.
+  foreground = svg.append("g")
+      .attr("class", "foreground")
+    .selectAll("path")
+      .data(zscore_data)
+    .enter().append("path")
+      .attr("class", function(d) { return d.translation; })
+      // .attr("class", "foodItem")
+      .attr("stroke", function(d) { return color(d.category)} )
+      .attr("d", path);
+
+  // Add a group element for each dimension.
+  var g = svg.selectAll(".dimension")
+      .data(dimensions)
+    .enter().append("g")
+      .attr("class", "dimension")
+      .attr("transform", function(d) { return "translate(" + x(d) + ")"; });
+
+  // Add an axis and title.
+  g.append("g")
+      .attr("class", "axis")
+      .each(function(d) { d3.select(this).call(axis.scale(y[d])); })
+    .append("text")
+      .style("text-anchor", "middle")
+      .attr("y", -9)
+      .text(function(d) { return d; });
+
+  // Add and store a brush for each axis.
+  g.append("g")
+      .attr("class", "brush")
+      .each(function(d) { d3.select(this).call(y[d].brush = d3.svg.brush().y(y[d]).on("brush", brush)); })
+    .selectAll("rect")
+      .attr("x", -8)
+      .attr("width", 16);
+
+  /* Table
+   ===== */
+  var columns = ["translation","category","macrocategory","subcategory","unit of measure","min","max","mean","1641","1644","1645","1646","1648","1656","1657","1659","1662","1663","1664","1665","1668","1670","1671","1672","1673","1674","1675","1676","1677","1678","1679","1680","1681","1682","1683","1684","1685","1686","1687","1688"]
+
+  var table = d3.select("#foods_table").append("table"),
+      thead = table.append("thead"),
+      tbody = table.append("tbody");
+
+  thead.append("tr")
+    .selectAll("th")
+    .data(columns)
+  .enter().append("th")
+    .text(function(column) { return column; });
+
+  rows = tbody.selectAll("tr")
+    .data(zscore_data)
+  .enter().append("tr")
+    .attr("class", function(d) { return d.translation; })
+    .on("mouseover", table_highlight)
+    .on("mouseout", table_unhighlight);
+
+  cells = rows.selectAll("td")
+    .data(function(row) {
+        return columns.map(function(column) {
+          return {column: column, value: row[column]};
+        });
+      })
+  .enter().append("td")
+    .html(function(d,i) { return d.value; });
+  
+  // brush();
+
+function table_highlight(d,i) {
+  d3.selectAll(function(d) { return d.translation; })
+    .classed("highlight", true)
+
+  // d3.selectAll(".foodItem")
+  //   .classed("highlight", false);
+  // d3.select("tr:nth-of-type(" + (i + 1) + ")")
+  //   .classed("highlight", true);
+  // d3.select("path:nth-of-type(" + (i + 1) + ")")
+  //   .classed("highlight", true);
+
+  // d3.select("#foreground").style("opacity", "0.25");
+  //path(d, highlighted, color(d.macrocategory,1)); // update this to read the right CSV file (foods.zscore)
+}
+function table_unhighlight(d,i) {
+  d3.selectAll(function(d) { return d.translation; })
+    .classed("highlight", false);
+}
+
+// function table_unhighlight() {
+//   // d3.select("#foreground").style("opacity", null);
+//   // highlighted.clearRect(0,0,w,h);
+// }
+};
+
+// /* Table */
+// d3.csv("data/foods.cleaned.csv", function(error, data) {
+//   // setting up grid
+//   var column_keys = d3.keys(data[0]);
+//   var columns = column_keys.map(function(key,i) {
+//     return {
+//       id: key,
+//       name: key,
+//       field: key,
+//       sortable: false
+//     }
+//   });
+
+//   var options = {
+//     enableCellNavigation: true,
+//     enableColumnReorder: false,
+//     multiColumnSort: false
+//   };
+
+//   var dataView = new Slick.Data.DataView();
+//   var grid = new Slick.Grid("#grid", dataView, columns, options);
+//   var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
+
+//   // wire up model events to drive the grid
+//   dataView.onRowCountChanged.subscribe(function (e, args) {
+//     grid.updateRowCount();
+//     grid.render();
+//   });
+
+//   dataView.onRowsChanged.subscribe(function (e, args) {
+//     grid.invalidateRows(args.rows);
+//     grid.render();
+//   });
+
+//   // column sorting
+//   var sortcol = column_keys[0];
+//   var sortdir = 1;
+
+//   function comparer(a, b) {
+//     var x = a[sortcol], y = b[sortcol];
+//     return (x == y ? 0 : (x > y ? 1 : -1));
+//   }
+  
+//   // click header to sort grid column
+//   grid.onSort.subscribe(function (e, args) {
+//     sortdir = args.sortAsc ? 1 : -1;
+//     sortcol = args.sortCol.field;
+
+//     if ($.browser.msie && $.browser.version <= 8) {
+//       dataView.fastSort(sortcol, args.sortAsc);
+//     } else {
+//       dataView.sort(comparer, args.sortAsc);
+//     }
+//   });
+
+//   // highlight row in chart
+//   grid.onMouseEnter.subscribe(function(e,args) {
+//     var i = grid.getCellFromEvent(e).row;
+//     var d = parcoords.brushed() || data;
+//     parcoords.highlight([d[i]]);
+//   });
+//   grid.onMouseLeave.subscribe(function(e,args) {
+//     parcoords.unhighlight();
+//   });
+
+//   // fill grid with data
+//   gridUpdate(data);
+
+//   // update grid on brush
+//   parcoords.on("brush", function(d) {
+//     gridUpdate(d);
+//   });
+
+//   function gridUpdate(data) {
+//     dataView.beginUpdate();
+//     dataView.setItems(data);
+//     dataView.endUpdate();
+//   };
+
+//     // var columns = ["translation","category","macrocategory","subcategory","unit of measure","min","max","mean","sparkline","1641","1644","1645","1646","1648","1656","1657","1659","1662","1663","1664","1665","1668","1670","1671","1672","1673","1674","1675","1676","1677","1678","1679","1680","1681","1682","1683","1684","1685","1686","1687","1688"]
+
+//     // var table = d3.select("#foods_table").append("table"),
+//     //     thead = table.append("thead"),
+//     //     tbody = table.append("tbody");
+
+//     // thead.append("tr")
+//     //   .selectAll("th")
+//     //   .data(columns)
+//     // .enter().append("th")
+//     //   .text(function(column) { return column; });
+
+//     // rows = tbody.selectAll("tr")
+//     //   .data(raw_data)
+//     // .enter().append("tr");
+
+//     // cells = rows.selectAll("td")
+//     //   .data(function(row) {
+//     //       return columns.map(function(column) {
+//     //         return {column: column, value: row[column]};
+//     //       });
+//     //     })
+//     // .enter().append("td")
+//     //   .text(function(d,i) { return d.value; });
+// });
+
+// Returns the path for a given data point.
+function path(d) {
+  return line(dimensions.map(function(p) { return [x(p), y[p](d[p])]; }));
+}
+
+// Handles a brush event, toggling the display of foreground lines.
+function brush() {
+  var actives = dimensions.filter(function(p) { return !y[p].brush.empty(); }),
+      extents = actives.map(function(p) { return y[p].brush.extent(); });
+
+  foreground.style("display", function(d) {
+    return actives.every(function(p, i) {
+      return extents[i][0] <= d[p] && d[p] <= extents[i][1];
+    }) ? null : "none";
+  });
+
+  rows.style("display", function(d) {
+      return actives.every(function(p ,i) {
+        return extents[i][0] <= d[p] && d[p] <= extents[i][1];
+      }) ? null : "none";
+  })
+}
+
+</script>
+
+  <div id="foods_table"></div>
+
+<!-- <footer>
+    <div class="panel-group" id="accordion">
+      <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse-timeline">
+                        <span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span> Timeline
+                    </a>
+                </h4>
+            </div>
+            <div id="collapse-timeline" class="panel-collapse collapse">
+                <div class="panel-body timeline_chart">
+                  <h5>Percentage of Time at Court</h5>
+                  <div id="timeline"></div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse-filter">
+                        <span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span> Filter
+                    </a>
+                </h4>
+            </div>
+            <div id="collapse-filter" class="panel-collapse collapse">
+                <div class="panel-body">
+                  <h5>Filter by Category</h5>
+                  <p id="legend"></p>
+                  <h5>Filter by Subcategory</h5>
+                  <p id="subcategories"></p>
+                  <br/>
+                  <br/>
+                  <a href="onclick:resetFoods()">Reset</a>
+                </div>
+            </div>
+        </div>
+    </div>
+  </footer> -->

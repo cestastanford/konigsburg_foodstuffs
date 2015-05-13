@@ -22,6 +22,42 @@
   <script src="bower_components/queue-async/queue.min.js"></script>
   <script src="bower_components/d3/d3.min.js"></script>
   <script src="bower_components/underscore/underscore-min.js"></script>
+
+  <style>
+  svg {
+  font: 10px sans-serif;
+}
+
+.background path {
+  fill: none;
+  stroke: #ddd;
+  shape-rendering: crispEdges;
+}
+
+.foreground path {
+  fill: none;
+  /*stroke: steelblue;*/
+  stroke-width: 1.8px;
+  stroke-opacity: 0.5;
+}
+
+.brush .extent {
+  fill-opacity: .3;
+  stroke: #fff;
+  shape-rendering: crispEdges;
+}
+
+.axis line,
+.axis path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+</style>
 </head>
 <body>
 
@@ -37,12 +73,15 @@
         <a class="navbar-brand" href="#">Königsberg Foodstuffs Database</a>
       </div>
       <div id="navbar" class="collapse navbar-collapse">
-        <!-- <div class="controls">
-          <strong id="rendered-count"></strong>/<strong id="selected-count"></strong>
-          <div class="fillbar"><div id="selected-bar"><div id="rendered-bar">&nbsp;</div></div></div>
-        </div> -->
+        <div class="authors">
+          <ul>
+            <li>Molly Taylor-Poleskey</li>
+            <li>Jason A. Heppler</li>
+            <li>Stanford University</li>
+          </ul>
+        </div>
         <!-- <select name="field-selector" id="field-selector"></select> -->
-        <input type="text" id="search" placeholder="Search food items..."></input>
+        <!--<input type="text" id="search" placeholder="Search food items..."></input>-->
       </div><!--/.nav-collapse -->
     </div>
   </nav>
@@ -52,17 +91,11 @@
     <canvas id="foreground"></canvas>
     <canvas id="highlight"></canvas>
     <div id="parallel_svg"></div>
-    <!-- <svg></svg> -->
   </div>
 
+  <div id="foods_table"></div>
 
-  <!-- <div id="foods_table"></div> -->
-
-  <div id="timeline_chart">
-    <div id="timeline"></div>
-  </div>
-
-<!--   <footer>
+  <footer>
     <div class="panel-group" id="accordion">
       <div class="panel panel-default">
             <div class="panel-heading">
@@ -73,8 +106,9 @@
                 </h4>
             </div>
             <div id="collapse-timeline" class="panel-collapse collapse">
-                <div class="panel-body">
-                  <p id="timeline"></p>
+                <div class="panel-body timeline_chart">
+                  <h5>Percentage of Year the Elector was at Court</h5>
+                  <div id="timeline"></div>
                 </div>
             </div>
         </div>
@@ -88,21 +122,22 @@
             </div>
             <div id="collapse-filter" class="panel-collapse collapse">
                 <div class="panel-body">
+                  <input type="text" id="search" placeholder="Search Foods..."></input>
                   <h5>Filter by Category</h5>
-                  <p id="legend"></p>
-                  <h5>Filter by Subcategory</h5>
-                  <p id="subcategories"></p>
+                    <p id="legend"></p>
+                    <p id="footnote">Click on a label above to filter food items from the chart and table.</p>
+                  <strong>Foods breakdown:</strong>
+                    <p id="subcategories"></p>
                   <br/>
                   <br/>
-                  <a href="onclick:resetFoods()">Reset</a>
+                    <button id="unselect-all" onmouseover="this.style.cursor='pointer'">Unselect All Categories</button><button id="select-all" disabled="disabled" onmouseover="this.style.cursor='pointer'">Select All Categories</button>
                 </div>
             </div>
         </div>
     </div>
-  </footer> -->
+  </footer>
 
 <script src="parallel.js"></script>
-<!-- <script src="timeline.js"></script> -->
 
 </body>
 </html>

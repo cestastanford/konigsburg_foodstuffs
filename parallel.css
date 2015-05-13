@@ -23,13 +23,16 @@ a {
 svg {
   font-family: Oxygen, Helvetica, sans-serif;
 }
-canvas, svg {
+#chart canvas, #chart svg {
   position: absolute;
   top: 0;
   left: 0;
 }
 #chart {
   position: relative;
+}
+#footnote {
+  font-size: 0.85em;
 }
 .brush rect.extent {
   fill: rgba(100,100,100,0.15);
@@ -45,9 +48,22 @@ canvas, svg {
 .resize rect {
   fill: none;
 }
-.background {
-  fill: none;
+rect.background {
+  fill: transparent;
 }
+rect.background:hover {
+  fill: rgba(120,120,120,0.2);
+}
+.resize rect {
+  fill: rgba(0,0,0,0.1);
+}
+rect.extent {
+  fill: rgba(255,255,255,0.25);
+  stroke: rgba(0,0,0,0.6);
+}
+/*.background {
+  fill: none;
+}*/
 .axis line, .axis path {
   fill: none;
   stroke: #777;
@@ -66,7 +82,7 @@ canvas, svg {
   font-size: 12px;
   padding-bottom: 24px;
 }
-.quarter, .third, .half {
+/*.quarter, .third, .half {
   float: left;
 }
 .quarter {
@@ -80,7 +96,7 @@ canvas, svg {
 .half {
   width: 48%;
   margin: 0 1%;
-}
+}*/
 h3 {
   margin: 12px 0 9px;
 }
@@ -93,6 +109,9 @@ p {
 }
 small {
   line-height: 1.2em;
+}
+button[disabled=disabled] {
+  display: none;
 }
 button[disabled=disabled] {
   color: #555 !important;
@@ -135,14 +154,19 @@ button#exclude-data:hover {
   font-weight: bold;
   line-height: 1.3em;
 }
+.sublegend-row {
+  /*cursor: pointer;*/
+  float: left;      /* remove if returning to bar chart */
+  padding: 4px;     /* remove if returning to bar chart */
+}
+.sublegend-row:hover {
+  /*font-weight: bold;*/
+  /*line-height: 1.3em;*/
+}
 .subcategory-row {
   cursor: pointer;
   float: left;      /* remove if returning to bar chart */
   padding: 4px;     /* remove if returning to bar chart */
-}
-.subcategory-row:hover {
-  font-weight: bold;
-  line-height: 1.3em;
 }
 .off {
   color: #999;
@@ -191,10 +215,25 @@ button#exclude-data:hover {
 #header button {
   vertical-align: top;
 }
-.controls {
+.authors {
   float: right;
   height: 24px;
   line-height: 24px;
+  color: #ccc;
+  margin-top: 15px;
+}
+.authors ul {
+  list-style: none;
+  margin: 10;
+  padding: 10;
+}
+.authors ul li {
+  display: inline;
+}
+.authors ul li:not(:first-child):before {
+  color: #fff;
+  content: " · ";
+  padding: 0 4px;
 }
 
 /* Scrollbars */
@@ -227,7 +266,7 @@ table, th, td {
 #foods_table {
   table-layout: fixed;
   width: 100%;
-  height: 30%;
+  height: 38%;
   overflow: scroll;
 }
 
@@ -275,9 +314,16 @@ table {
     line-height: 1.125rem; }
 
 table tr:hover {
-    border: 1px solid #333;
+    /*border: 1px solid #333;*/
+    background: #f2f2f2;
+}
+td:first-child {
+    width: 250px;
 }
 
+td[colspan] {
+    width: auto;
+}
 #search {
   float: right;
   margin-top: 10px;
@@ -323,8 +369,20 @@ table tr:hover {
     outline: none;
 }
 
-.line {
-    fill: none;
-    stroke: #000;
-    stroke-width: 1.0px;
+.row {
+  width: 100%;
+  margin: 0 auto;
+  max-width: 62.5rem;
+}
+
+.background path {
+  fill: none;
+  stroke: #ddd;
+  shape-rendering: crispEdges;
+}
+
+.foreground path {
+  fill: none;
+  stroke-opacity: .5;
+  stroke-width: 1.7;
 }

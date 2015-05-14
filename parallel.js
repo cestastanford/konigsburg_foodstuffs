@@ -1,5 +1,3 @@
-"use strict";
-
 queue()
   .defer(d3.csv, "./data/foods.joined.csv")
   .defer(d3.csv, "./data/visit_percentage.csv")
@@ -160,7 +158,7 @@ function ready(error, zscore_data, raw_data) {
       .attr("y", function(d,i) { return i % 2 == 0 ? -14 : -30 } )
       .attr("x", 0)
       .attr("class", "label year")
-      .text(String);
+      .text(function(d) { return d.slice(1,5)});
 
   // add a brush for each axis
   g.append("g")

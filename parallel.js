@@ -1,3 +1,5 @@
+"use strict";
+
 queue()
   .defer(d3.csv, "./data/foods.joined.csv")
   .defer(d3.csv, "./data/visit_percentage.csv")
@@ -28,7 +30,8 @@ var m = [60, 0, 10, 0],
     excluded_subcategories = [],
     rows,
     cells,
-    shuffled_data;
+    shuffled_data,
+    pattern;
 
 // Scales
 //-----------------------------------------------------
@@ -53,7 +56,7 @@ var subcolors = {
   "Cooking oil": [231,41,138],
   "Dairy": [27,158,119],
   "Eggs": [117,112,179],
-  "Fish": [117,112,179],
+  "Fish": [230,171,2],
   "Fruit": [102,166,30],
   "Grain": [217,95,2],
   "Honey": [231,41,138],
@@ -227,7 +230,7 @@ function create_legend(colors,brush) {
 // Table
 //-----------------------------------------------------
 function data_table(fdata) {
-  var columns = ["translation","category","macrocategory","unit of measure","min","max","mean",
+  var columns = ["legend","translation","category","macrocategory","unit of measure","min","max","mean",
                  "1641","1644","1645","1646","1648","1656","1657","1659","1662","1663","1664","1665","1668",
                  "1670","1671","1672","1673","1674","1675","1676","1677","1678","1679","1680","1681","1682",
                  "1683","1684","1685","1686","1687","1688"];
@@ -246,9 +249,14 @@ function data_table(fdata) {
     .data(fdata)
   .enter().append("tr")
     .attr("id", function(d) { return d.macrocategory; })
-    .attr("class", function(d) { return d.translation; })
+    .attr("class", "foodItem")
     .on("mouseover", highlight)
     .on("mouseout", unhighlight);
+
+  rows
+    .append("td")
+    .style("background", function(d,i) { return color(d.macrocategory,0.85)})
+    .attr("class", "color-box");
 
   cells = rows.selectAll("td")
     .data(function(row) {
@@ -258,6 +266,7 @@ function data_table(fdata) {
       })
   .enter().append("td")
     .html(function(d,i) { return d.value; });
+
 }
 
 // Subcategory legend function

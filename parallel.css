@@ -177,6 +177,13 @@ button#exclude-data:hover {
   width: 8px;
   margin: 1px 4px 1px 0px;
 }
+.color-box {
+  display: inline-block;
+  height: 8px;
+  width: 8px;
+  margin: 4px 4px 4px 16px;
+  padding: 4px;
+}
 #rendered-bar,
 #selected-bar {
   width:0%;
@@ -317,7 +324,7 @@ table tr:hover {
     /*border: 1px solid #333;*/
     background: #f2f2f2;
 }
-td:first-child {
+td:second-child {
     width: 250px;
 }
 
